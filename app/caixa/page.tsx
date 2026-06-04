@@ -40,11 +40,7 @@ import {
   carregarMetricasTurno,
 } from "@/services/caixa.service";
 
-import {
-  Turno,
-  TotaisMeios,
-  MetricasTurno,
-} from "@/types/caixa.types";
+import { Turno, TotaisMeios, MetricasTurno } from "@/types/caixa.types";
 
 interface DetalhesCaixaAntigo extends MetricasTurno {
   id: string;
@@ -81,135 +77,106 @@ export default function Caixa() {
   }, []);
 
   async function carregarDadosCaixa() {
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const user = await buscarUsuarioAtual();
+    try {
+      const user = await buscarUsuarioAtual();
 
-    const turno = await buscarTurnoAtivo(user.id);
+      const turno = await buscarTurnoAtivo(user.id);
 
-    setTurnoAtivo(turno);
+      setTurnoAtivo(turno);
 
-    const historico = await buscarHistoricoCaixa(
-      user.id
-    );
+      const historico = await buscarHistoricoCaixa(user.id);
 
-    setHistoricoTurnos(historico);
-  // Se houver um caixa aberto, calcula o painel financeiro dele imediatamente
-    if (turno) {
-      const metricas =
-        await carregarMetricasTurno(turno.id);
+      setHistoricoTurnos(historico);
+      // Se houver um caixa aberto, calcula o painel financeiro dele imediatamente
+      if (turno) {
+        const metricas = await carregarMetricasTurno(turno.id);
 
-      setTotais(metricas.meiosPagamento);
-      setTotalGeralVendido(
-        metricas.faturamentoGeral
-      );
-      setLucroGeralTurno(
-        metricas.lucroGeral
-      );
+        setTotais(metricas.meiosPagamento);
+        setTotalGeralVendido(metricas.faturamentoGeral);
+        setLucroGeralTurno(metricas.lucroGeral);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
   }
-}
-
- 
 
   // ativado ao clicar em "Ver Detalhes" de um caixa antigo
-  async function visualizarDetalhesCaixa(
-  turno: Turno
-) {
-  setCaixaSelecionado(turno);
-  setModalAberto(true);
-  setLoadingDetalhes(true);
+  async function visualizarDetalhesCaixa(turno: Turno) {
+    setCaixaSelecionado(turno);
+    setModalAberto(true);
+    setLoadingDetalhes(true);
 
-  try {
-    const metricas =
-      await carregarMetricasTurno(turno.id);
+    try {
+      const metricas = await carregarMetricasTurno(turno.id);
 
-    setDetalhesSelecionado({
-      id: turno.id,
-      ...metricas,
-    });
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoadingDetalhes(false);
+      setDetalhesSelecionado({
+        id: turno.id,
+        ...metricas,
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingDetalhes(false);
+    }
   }
-}
 
- async function handleAbrirCaixa(
-  e: React.FormEvent
-) {
-  e.preventDefault();
+  async function handleAbrirCaixa(e: React.FormEvent) {
+    e.preventDefault();
 
-  setActionLoading(true);
+    setActionLoading(true);
 
-  try {
-    const user =
-      await buscarUsuarioAtual();
+    try {
+      const user = await buscarUsuarioAtual();
 
-    await abrirCaixa(
-      user.id,
-      parseFloat(
-        valorAberturaInput.replace(",", ".")
-      ) || 0
-    );
+      await abrirCaixa(
+        user.id,
+        parseFloat(valorAberturaInput.replace(",", ".")) || 0,
+      );
 
-    await carregarDadosCaixa();
-  } catch (err: any) {
-    alert(
-      `Erro ao abrir caixa: ${err.message}`
-    );
-  } finally {
-    setActionLoading(false);
+      await carregarDadosCaixa();
+    } catch (err: any) {
+      alert(`Erro ao abrir caixa: ${err.message}`);
+    } finally {
+      setActionLoading(false);
+    }
   }
-}
 
   async function handleFecharCaixa() {
-  if (!turnoAtivo) return;
+    if (!turnoAtivo) return;
 
-  if (
-    !confirm(
-      "Deseja encerrar o caixa e salvar o fechamento?"
-    )
-  ) {
-    return;
+    if (!confirm("Deseja encerrar o caixa e salvar o fechamento?")) {
+      return;
+    }
+
+    setActionLoading(true);
+
+    try {
+      const valorFechamento =
+        Number(turnoAtivo.valor_abertura) + totalGeralVendido;
+
+      await fecharCaixa(turnoAtivo.id, valorFechamento);
+
+      setTotais({
+        Pix: 0,
+        Dinheiro: 0,
+        "Cartão de Crédito": 0,
+        "Cartão de Débito": 0,
+      });
+
+      setTotalGeralVendido(0);
+      setLucroGeralTurno(0);
+
+      await carregarDadosCaixa();
+    } catch (err: any) {
+      alert(`Erro ao fechar o caixa: ${err.message}`);
+    } finally {
+      setActionLoading(false);
+    }
   }
-
-  setActionLoading(true);
-
-  try {
-    const valorFechamento =
-      Number(turnoAtivo.valor_abertura) +
-      totalGeralVendido;
-
-    await fecharCaixa(
-      turnoAtivo.id,
-      valorFechamento
-    );
-
-    setTotais({
-      Pix: 0,
-      Dinheiro: 0,
-      "Cartão de Crédito": 0,
-      "Cartão de Débito": 0,
-    });
-
-    setTotalGeralVendido(0);
-    setLucroGeralTurno(0);
-
-    await carregarDadosCaixa();
-  } catch (err: any) {
-    alert(
-      `Erro ao fechar o caixa: ${err.message}`
-    );
-  } finally {
-    setActionLoading(false);
-  }
-}
 
   if (loading)
     return (
@@ -222,7 +189,6 @@ export default function Caixa() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-800 antialiased p-6 md:p-12">
       <div className="max-w-3xl mx-auto space-y-8">
-        
         <header className="flex justify-between items-center">
           <div>
             <h1 className="text-xl font-semibold text-zinc-900 tracking-tight">
@@ -395,13 +361,33 @@ export default function Caixa() {
                       </p>
                       <p className="text-[10px] text-zinc-400">
                         Abertura: R$ {Number(turno.valor_abertura).toFixed(2)} |
-                        Encerrado às{" "}
-                        {turno.fechado_em
-                          ? new Date(turno.fechado_em).toLocaleTimeString(
-                              "pt-BR",
-                            )
-                          : ""}
+                        Aberto em{" "}
+                        {new Date(turno.aberto_em).toLocaleDateString("pt-BR")}{" "}
+                        às{" "}
+                        {new Date(turno.aberto_em).toLocaleTimeString("pt-BR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                         h
+                        {/*Só tenta renderizar o bloco abaixo se o caixa possuir uma data de fechamento.*/}
+                        {turno.fechado_em && (
+                          <>
+                            {" "}
+                            | Encerrado em{" "}
+                            {new Date(turno.fechado_em).toLocaleDateString(
+                              "pt-BR",
+                            )}{" "}
+                            às{" "}
+                            {new Date(turno.fechado_em).toLocaleTimeString(
+                              "pt-BR",
+                              {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              },
+                            )}
+                            h
+                          </>
+                        )}
                       </p>
                     </div>
 

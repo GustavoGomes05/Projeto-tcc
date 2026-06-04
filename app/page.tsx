@@ -56,7 +56,7 @@ export default function HomePage() {
           <div className="h-8 w-8 rounded-lg bg-zinc-900" />
 
           <span className="text-sm font-semibold text-zinc-900">
-            ERP System
+            Projeto tcc
           </span>
         </div>
 
@@ -130,7 +130,7 @@ export default function HomePage() {
 
               <Link href="/cadastro">
                 <Button variant="outline" className="w-full">
-                  Criar conta gratuita
+                  Criar conta
                 </Button>
               </Link>
             </div>
