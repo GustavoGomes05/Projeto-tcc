@@ -368,7 +368,6 @@ export default function Caixa() {
                           hour: "2-digit",
                           minute: "2-digit",
                         })}
-                        h
                         {/*Só tenta renderizar o bloco abaixo se o caixa possuir uma data de fechamento.*/}
                         {turno.fechado_em && (
                           <>
@@ -385,7 +384,6 @@ export default function Caixa() {
                                 minute: "2-digit",
                               },
                             )}
-                            h
                           </>
                         )}
                       </p>
