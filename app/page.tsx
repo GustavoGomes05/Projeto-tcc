@@ -9,6 +9,7 @@ import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { ShoppingCart } from "lucide-react";
 
 export default function HomePage() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function HomePage() {
       <header className="flex items-center justify-between px-6 py-4">
         {/* LOGO AREA */}
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-lg bg-zinc-900" />
+          <ShoppingCart className="mx-auto h-8 w-8 text-zinc-900 stroke-[1.5]" />
 
           <span className="text-sm font-semibold text-zinc-900">
             Projeto tcc
@@ -93,17 +94,12 @@ export default function HomePage() {
       <main className="flex flex-1 items-center justify-center px-6">
         <Card className="w-full max-w-xl p-10 text-center space-y-6 border-zinc-200/60">
           {/* LOGO BIG */}
-          <div className="mx-auto h-14 w-14 rounded-2xl bg-zinc-900" />
+          <ShoppingCart className="mx-auto h-16 w-16 text-zinc-900 stroke-[1.5]" />
 
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
-              Sistema de Gestão de Vendas
+              Sistema de Gestão
             </h1>
-
-            <p className="text-sm text-zinc-500">
-              Controle produtos, estoque e vendas em um único lugar simples e
-              rápido.
-            </p>
           </div>
 
           <Separator />
@@ -115,12 +111,8 @@ export default function HomePage() {
                 className="w-full"
                 onClick={() => router.push("/produtos")}
               >
-                Ir para sistema
+                Fazer uma venda
               </Button>
-
-              <p className="text-xs text-zinc-500">
-                Você já está autenticado e pode acessar o sistema.
-              </p>
             </div>
           ) : (
             <div className="space-y-3">
