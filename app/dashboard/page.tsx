@@ -61,9 +61,11 @@ import {
   ShoppingBag,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { DadosGrafico, MetricasPeriodo, ProdutoMaisVendido } from "@/types/dashboard.types";
-
-
+import {
+  DadosGrafico,
+  MetricasPeriodo,
+  ProdutoMaisVendido,
+} from "@/types/dashboard.types";
 
 const chartConfig = {
   faturamento: {
@@ -100,37 +102,29 @@ export default function DashboardPage() {
 
   const [dadosGrafico, setDadosGrafico] = useState<DadosGrafico[]>([]);
 
- useEffect(() => {
-  if (
-    periodoSelecionado === "customizado" &&
-    !date?.from
-  ) {
-    return;
-  }
+  useEffect(() => {
+    if (periodoSelecionado === "customizado" && !date?.from) {
+      return;
+    }
 
-  carregarDadosDashboard();
-}, [periodoSelecionado, date]);
+    carregarDadosDashboard();
+  }, [periodoSelecionado, date]);
 
   async function carregarDadosDashboard() {
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    const resultado = await carregarDashboard(
-      periodoSelecionado,
-      date
-    );
+    try {
+      const resultado = await carregarDashboard(periodoSelecionado, date);
 
-    setMetricas(resultado.metricas);
-    setProdutosMaisVendidos(
-      resultado.produtosMaisVendidos
-    );
-    setDadosGrafico(resultado.dadosGrafico);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
+      setMetricas(resultado.metricas);
+      setProdutosMaisVendidos(resultado.produtosMaisVendidos);
+      setDadosGrafico(resultado.dadosGrafico);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   function aplicarFiltroPersonalizado() {
     if (dataInicioTmp) {

@@ -1,7 +1,7 @@
 import { supabase } from "@/lib/supabase";
 import { Turno, TotaisMeios } from "@/types/caixa.types";
 
-//verificando se tem um usuario logado 
+//verificando se tem um usuario logado
 export async function buscarUsuarioAtual() {
   const {
     data: { user },
@@ -14,13 +14,10 @@ export async function buscarUsuarioAtual() {
   return user;
 }
 //verificando se tem um caixa aberto
-export async function buscarTurnoAtivo(
-  userId: string,
-): Promise<Turno | null> {
+export async function buscarTurnoAtivo(userId: string): Promise<Turno | null> {
   const { data, error } = await supabase
     .from("caixa")
     .select("*")
-    .eq("user_id", userId)
     .eq("status", "aberto")
     .maybeSingle();
 
@@ -28,14 +25,11 @@ export async function buscarTurnoAtivo(
 
   return data;
 }
-//buscando os ultimos caixas 
-export async function buscarHistoricoCaixa(
-  userId: string,
-): Promise<Turno[]> {
+//buscando os ultimos caixas
+export async function buscarHistoricoCaixa(userId: string): Promise<Turno[]> {
   const { data, error } = await supabase
     .from("caixa")
     .select("*")
-    .eq("user_id", userId)
     .eq("status", "fechado")
     .order("fechado_em", { ascending: false })
     .limit(10);
@@ -45,27 +39,19 @@ export async function buscarHistoricoCaixa(
   return data || [];
 }
 
-export async function abrirCaixa(
-  userId: string,
-  valorAbertura: number,
-) {
-  const { error } = await supabase
-    .from("caixa")
-    .insert([
-      {
-        user_id: userId,
-        valor_abertura: valorAbertura,
-        status: "aberto",
-      },
-    ]);
+export async function abrirCaixa(userId: string, valorAbertura: number) {
+  const { error } = await supabase.from("caixa").insert([
+    {
+      user_id: userId,
+      valor_abertura: valorAbertura,
+      status: "aberto",
+    },
+  ]);
 
   if (error) throw error;
 }
 
-export async function fecharCaixa(
-  caixaId: string,
-  valorFechamento: number,
-) {
+export async function fecharCaixa(caixaId: string, valorFechamento: number) {
   const { error } = await supabase
     .from("caixa")
     .update({
@@ -78,25 +64,23 @@ export async function fecharCaixa(
   if (error) throw error;
 }
 
+//Calcula em tempo real o faturamento, custos, lucros e meios de pagamento do turno.
 
- //Calcula em tempo real o faturamento, custos, lucros e meios de pagamento do turno.
- 
-export async function carregarMetricasTurno(
-  caixaId: string,
-) {
+export async function carregarMetricasTurno(caixaId: string) {
   let totalItens = 0;
   //Consulta Relacional: Busca o total da venda e desce até os itens para pegar o preço de custo original
-  const { data: vendas, error: erroVendas } =
-    await supabase
-      .from("vendas")
-      .select(`
+  const { data: vendas, error: erroVendas } = await supabase
+    .from("vendas")
+    .select(
+      `
         total,
         itens_venda(
           quantidade,
           preco_custo
         )
-      `)
-      .eq("caixa_id", caixaId);
+      `,
+    )
+    .eq("caixa_id", caixaId);
 
   if (erroVendas) throw erroVendas;
 
@@ -109,7 +93,7 @@ export async function carregarMetricasTurno(
 
   let faturamentoGeral = 0;
   let custoTotal = 0;
-    // Processa as margens de lucro de cada item vendido no turno
+  // Processa as margens de lucro de cada item vendido no turno
   vendas?.forEach((venda: any) => {
     faturamentoGeral += Number(venda.total || 0);
 
@@ -122,36 +106,31 @@ export async function carregarMetricasTurno(
     });
   });
 
-  const { data: pagamentos, error: erroPagamentos } =
-    await supabase
-      .from("vendas")
-      .select(`
+  const { data: pagamentos, error: erroPagamentos } = await supabase
+    .from("vendas")
+    .select(
+      `
         pagamentos_venda(
           forma_pagamento,
           valor
         )
-      `)
-      .eq("caixa_id", caixaId);
+      `,
+    )
+    .eq("caixa_id", caixaId);
 
   if (erroPagamentos) throw erroPagamentos;
-// Agrupa os valores financeiros por suas respectivas chaves (Pix, Dinheiro, etc)
+  // Agrupa os valores financeiros por suas respectivas chaves (Pix, Dinheiro, etc)
   pagamentos?.forEach((venda: any) => {
     venda.pagamentos_venda?.forEach((pagamento: any) => {
-      const forma =
-        pagamento.forma_pagamento as keyof TotaisMeios;
+      const forma = pagamento.forma_pagamento as keyof TotaisMeios;
 
       if (forma in meiosPagamento) {
-        meiosPagamento[forma] += Number(
-          pagamento.valor || 0,
-        );
+        meiosPagamento[forma] += Number(pagamento.valor || 0);
       }
     });
   });
-/// Lucro Real Líquido (Faturamento - Custo dos Produtos Vendidos)
-  const lucroGeral = Math.max(
-    faturamentoGeral - custoTotal,
-    0,
-  );
+  /// Lucro Real Líquido (Faturamento - Custo dos Produtos Vendidos)
+  const lucroGeral = Math.max(faturamentoGeral - custoTotal, 0);
 
   return {
     faturamentoGeral,

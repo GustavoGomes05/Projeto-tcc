@@ -1,12 +1,10 @@
 import { supabase } from "@/lib/supabase";
-import { Produto, FinalizarVendaParams  } from "@/types/vendas.types";
+import { Produto, FinalizarVendaParams } from "@/types/vendas.types";
 
-
-export async function verificarCaixaAberto(userId: string) {
+export async function verificarCaixaAberto() {
   return await supabase
     .from("caixa")
     .select("id")
-    .eq("user_id", userId)
     .eq("status", "aberto")
     .maybeSingle();
 }
@@ -22,7 +20,7 @@ export async function buscarProdutosAtivos() {
 export async function criarVenda(
   userId: string,
   caixaId: string,
-  total: number
+  total: number,
 ) {
   return await supabase
     .from("vendas")
@@ -42,16 +40,14 @@ export async function inserirPagamentos(
   pagamentos: {
     forma_pagamento: string;
     valor: number;
-  }[]
+  }[],
 ) {
-  return await supabase
-    .from("pagamentos_venda")
-    .insert(
-      pagamentos.map((p) => ({
-        venda_id: vendaId,
-        ...p,
-      }))
-    );
+  return await supabase.from("pagamentos_venda").insert(
+    pagamentos.map((p) => ({
+      venda_id: vendaId,
+      ...p,
+    })),
+  );
 }
 
 export async function inserirItemVenda(
@@ -61,18 +57,15 @@ export async function inserirItemVenda(
     quantidade: number;
     preco_unitario: number;
     preco_custo: number;
-  }
+  },
 ) {
-  return await supabase
-    .from("itens_venda")
-    .insert([
-      {
-        venda_id: vendaId,
-        ...item,
-      },
-    ]);
+  return await supabase.from("itens_venda").insert([
+    {
+      venda_id: vendaId,
+      ...item,
+    },
+  ]);
 }
-
 
 export async function finalizarVendaService({
   userId,
@@ -81,50 +74,41 @@ export async function finalizarVendaService({
   itens,
   valoresPagamento,
 }: FinalizarVendaParams) {
-  const { data: turno } =
-    await verificarCaixaAberto(userId);
+  const { data: turno } = await verificarCaixaAberto();
 
   if (!turno) {
-    throw new Error(
-      "Operação bloqueada: O caixa foi fechado."
-    );
+    throw new Error("Operação bloqueada: O caixa foi fechado.");
   }
 
-  const { data: venda, error: vendaError } =
-    await criarVenda(
-      userId,
-      caixaId,
-      valorTotal
-    );
+  const { data: venda, error: vendaError } = await criarVenda(
+    userId,
+    caixaId,
+    valorTotal,
+  );
 
   if (vendaError) throw vendaError;
 
-     const pagamentos = Object.entries(valoresPagamento)
-  .filter(([_, valor]) => Number(valor) > 0)
-  .map(([forma, valor]) => ({
-    forma_pagamento: forma,
-    valor: Number(valor),
-  }));
+  const pagamentos = Object.entries(valoresPagamento)
+    .filter(([_, valor]) => Number(valor) > 0)
+    .map(([forma, valor]) => ({
+      forma_pagamento: forma,
+      valor: Number(valor),
+    }));
 
-  const { error: pagamentoError } =
-    await inserirPagamentos(
-      venda.id,
-      pagamentos
-    );
+  const { error: pagamentoError } = await inserirPagamentos(
+    venda.id,
+    pagamentos,
+  );
 
   if (pagamentoError) throw pagamentoError;
 
   for (const item of itens) {
-    const { error } =
-      await inserirItemVenda(
-        venda.id,
-        {
-          produto_id: item.produto.id,
-          quantidade: item.quantidade,
-          preco_unitario: item.produto.preco,
-          preco_custo: item.produto.preco_custo,
-        }
-      );
+    const { error } = await inserirItemVenda(venda.id, {
+      produto_id: item.produto.id,
+      quantidade: item.quantidade,
+      preco_unitario: item.produto.preco,
+      preco_custo: item.produto.preco_custo,
+    });
 
     if (error) throw error;
   }

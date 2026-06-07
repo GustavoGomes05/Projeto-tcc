@@ -32,15 +32,11 @@ import {
   criarVenda,
   inserirPagamentos,
   inserirItemVenda,
-  finalizarVendaService
+  finalizarVendaService,
 } from "@/services/vendas.service";
-import {getCurrentUser} from "@/services/auth.service"
+import { getCurrentUser } from "@/services/auth.service";
 
-import {
-  Produto,
-  ItemVenda,
-  ValoresPagamento,
-} from "@/types/vendas.types";
+import { Produto, ItemVenda, ValoresPagamento } from "@/types/vendas.types";
 
 export default function paginaInicial() {
   const router = useRouter();
@@ -83,8 +79,7 @@ export default function paginaInicial() {
           return;
         }
 
-        const { data: turno } =  await verificarCaixaAberto(user.id);
-          
+        const { data: turno } = await verificarCaixaAberto();
 
         if (!turno) {
           setCaixaAberto(false);
@@ -96,8 +91,7 @@ export default function paginaInicial() {
         setCaixaAberto(true);
 
         // ALTERADO: Adicionado .eq("ativo", true) para listar apenas produtos ativos
-      const { data: prods } =
-      await buscarProdutosAtivos();
+        const { data: prods } = await buscarProdutosAtivos();
         if (prods) setProdutos(prods as Produto[]);
       } catch (err) {
         console.error(err);
@@ -174,65 +168,64 @@ export default function paginaInicial() {
   }
 
   async function finalizarVenda() {
-  if (itens.length === 0 || !caixaAberto || !caixaId) {
-    return;
-  }
-
-  if (totalInformado.toFixed(2) !== valorTotal.toFixed(2)) {
-    setStatus({
-      erro: true,
-      texto: `A soma informada (R$ ${totalInformado.toFixed(2)}) não confere com o total da venda (R$ ${valorTotal.toFixed(2)})`,
-    });
-
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    const user = await getCurrentUser();
-
-    if (!user) {
-      throw new Error("Sessão expirada.");
+    if (itens.length === 0 || !caixaAberto || !caixaId) {
+      return;
     }
 
-    await finalizarVendaService({
-      userId: user.id,
-      caixaId,
-      valorTotal,
-      itens,
-      valoresPagamento,
-    });
+    if (totalInformado.toFixed(2) !== valorTotal.toFixed(2)) {
+      setStatus({
+        erro: true,
+        texto: `A soma informada (R$ ${totalInformado.toFixed(2)}) não confere com o total da venda (R$ ${valorTotal.toFixed(2)})`,
+      });
 
-    setStatus({
-      erro: false,
-      texto: "Venda concluída com sucesso!",
-    });
-
-    setItens([]);
-
-    setValoresPagamento({
-      Pix: 0,
-      Dinheiro: 0,
-      "Cartão de Crédito": 0,
-      "Cartão de Débito": 0,
-    });
-
-    const { data } =
-      await buscarProdutosAtivos();
-
-    if (data) {
-      setProdutos(data);
+      return;
     }
-  } catch (err: any) {
-    setStatus({
-      erro: true,
-      texto: err.message,
-    });
-  } finally {
-    setLoading(false);
+
+    try {
+      setLoading(true);
+
+      const user = await getCurrentUser();
+
+      if (!user) {
+        throw new Error("Sessão expirada.");
+      }
+
+      await finalizarVendaService({
+        userId: user.id,
+        caixaId,
+        valorTotal,
+        itens,
+        valoresPagamento,
+      });
+
+      setStatus({
+        erro: false,
+        texto: "Venda concluída com sucesso!",
+      });
+
+      setItens([]);
+
+      setValoresPagamento({
+        Pix: 0,
+        Dinheiro: 0,
+        "Cartão de Crédito": 0,
+        "Cartão de Débito": 0,
+      });
+
+      const { data } = await buscarProdutosAtivos();
+
+      if (data) {
+        setProdutos(data);
+      }
+    } catch (err: any) {
+      setStatus({
+        erro: true,
+        texto: err.message,
+      });
+    } finally {
+      setLoading(false);
+    }
   }
-}
 
   if (loading) {
     return (
