@@ -214,11 +214,10 @@ export default function Caixa() {
             <CardContent className="max-w-sm mx-auto text-center space-y-5 py-12">
               <div className="space-y-1">
                 <CardTitle className="text-base font-medium text-zinc-900">
-                  Terminal Fechado
+                  Caixa fechado
                 </CardTitle>
                 <CardDescription className="text-xs text-zinc-400">
-                  Informe o valor de fundo ou troco inicial em dinheiro para
-                  iniciar as vendas.
+                  Informe o valor de inicial do caixa.
                 </CardDescription>
               </div>
               <form onSubmit={handleAbrirCaixa} className="space-y-3">
