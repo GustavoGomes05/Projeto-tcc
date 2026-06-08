@@ -28,21 +28,14 @@ import {
   ChartColumnIncreasing,
 } from "lucide-react";
 
-import {
-  getCurrentUser,
-  onAuthChange,
-  logout,
-} from "@/services/auth.service";
+import { getCurrentUser, onAuthChange, logout } from "@/services/auth.service";
 
 interface NavbarProps {
   isCollapsed: boolean;
   onToggle: () => void;
 }
 
-export default function Navbar({
-  isCollapsed,
-  onToggle,
-}: NavbarProps) {
+export default function Navbar({ isCollapsed, onToggle }: NavbarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -70,11 +63,7 @@ export default function Navbar({
     router.push("/login");
   }
 
-  if (
-    !isAuthenticated ||
-    pathname === "/login" ||
-    pathname === "/cadastro"
-  ) {
+  if (!isAuthenticated || pathname === "/login" || pathname === "/cadastro") {
     return null;
   }
 
@@ -115,7 +104,7 @@ export default function Navbar({
     <aside
       className={cn(
         "fixed inset-y-0 left-0 z-50 flex flex-col justify-between border-r border-slate-200 bg-white/70 backdrop-blur-xl transition-all duration-300",
-        isCollapsed ? "w-20" : "w-64"
+        isCollapsed ? "w-20" : "w-64",
       )}
     >
       {/* TOPO */}
@@ -123,9 +112,7 @@ export default function Navbar({
         <div
           className={cn(
             "flex h-16 items-center px-4",
-            isCollapsed
-              ? "justify-center"
-              : "justify-between"
+            isCollapsed ? "justify-center" : "justify-between",
           )}
         >
           {!isCollapsed && (
@@ -133,7 +120,7 @@ export default function Navbar({
               <div className="h-2 w-2 rounded-full bg-black" />
 
               <span className="text-sm font-semibold tracking-tight text-zinc-900">
-                SISTEMA DE GESTÃO
+                Facilita Web
               </span>
             </Link>
           )}
@@ -171,36 +158,26 @@ export default function Navbar({
                     : "h-11 gap-3 px-3",
                   isActive
                     ? "bg-blue-50 text-blue-700 border border-blue-100 shadow-sm"
-                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900",
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
 
-                {!isCollapsed && (
-                  <span>{link.label}</span>
-                )}
+                {!isCollapsed && <span>{link.label}</span>}
               </Link>
             );
-// Se o menu estiver encolhido, põe um texto para o usuario saber o que cada icone faz 
+            // Se o menu estiver encolhido, põe um texto para o usuario saber o que cada icone faz
             if (isCollapsed) {
               return (
                 <Tooltip key={link.href}>
-                  <TooltipTrigger asChild>
-                    {content}
-                  </TooltipTrigger>
+                  <TooltipTrigger asChild>{content}</TooltipTrigger>
 
-                  <TooltipContent side="right">
-                    {link.label}
-                  </TooltipContent>
+                  <TooltipContent side="right">{link.label}</TooltipContent>
                 </Tooltip>
               );
             }
 
-            return (
-              <div key={link.href}>
-                {content}
-              </div>
-            );
+            return <div key={link.href}>{content}</div>;
           })}
         </nav>
       </div>
@@ -222,9 +199,7 @@ export default function Navbar({
               </Button>
             </TooltipTrigger>
 
-            <TooltipContent side="right">
-              Sair do Sistema
-            </TooltipContent>
+            <TooltipContent side="right">Sair do Sistema</TooltipContent>
           </Tooltip>
         ) : (
           <Button
