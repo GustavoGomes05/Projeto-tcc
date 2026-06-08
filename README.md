@@ -17,6 +17,16 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_Zrj2_1sVaB6re-ufMGOdiQ_7nexx5My
 
 npm run dev
 
+Execução do projeto
+
+Após iniciar o projeto localmente, a aplicação estará disponível em:
+
+http://localhost:3000
+
+Também é possível acessar a versão em produção através da Vercel:
+https://projeto-tcc-neon.vercel.app/caixa
+
+
 Credenciais de acesso:
   login: admin@admin.com
   senha: 123456
