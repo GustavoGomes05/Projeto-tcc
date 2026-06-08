@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Como executar o projeto
 
-## Getting Started
+1. Certifique-se de que possui o Node.js versão 26.0 ou superior instalado.
 
-First, run the development server:
+2. Na raiz do projeto, execute o comando abaixo para instalar as dependências necessárias para a execução do sistema:
 
-```bash
+npm install
+
+3. Em seguida, configure as variáveis de ambiente.
+
+Crie um arquivo chamado .env.local na raiz do projeto e adicione as seguintes variáveis para conexão com o banco de dados:
+
+NEXT_PUBLIC_SUPABASE_URL=https://xavuwphpjgszqpxcaupn.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_Zrj2_1sVaB6re-ufMGOdiQ_7nexx5My
+
+4. Após a configuração, execute o projeto com o comando:
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Execução do projeto
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Após iniciar o projeto localmente, a aplicação estará disponível em:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+http://localhost:3000
 
-## Learn More
+Também é possível acessar a versão em produção através da Vercel:
+https://projeto-tcc-neon.vercel.app/caixa
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Credenciais de acesso:
+  login: admin@admin.com
+  senha: 123456
