@@ -57,7 +57,7 @@ export default function HomePage() {
           <ShoppingCart className="mx-auto h-8 w-8 text-zinc-900 stroke-[1.5]" />
 
           <span className="text-sm font-semibold text-zinc-900">
-            Facilta Web
+            Facilita Web
           </span>
         </div>
 
