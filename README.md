@@ -16,3 +16,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_Zrj2_1sVaB6re-ufMGOdiQ_7nexx5My
 4. Após a configuração, execute o projeto com o comando:
 
 npm run dev
+
+Credenciais de acesso:
+  login: admin@admin.com
+  senha: 123456
